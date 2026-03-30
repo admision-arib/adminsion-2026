@@ -2,6 +2,9 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.db import transaction, IntegrityError
 
+import logging
+logger = logging.getLogger(__name__)
+
 from apps.admision.models import Convocatoria, ModalidadPostulacion
 from apps.documentos.models import TipoDocumento, DocumentoInscripcion
 from apps.documentos.services.google_drive import ServicioGoogleDrive
@@ -114,7 +117,9 @@ def registrar_inscripcion(request):
                         pdf_bytes = generar_ficha_postulante_pdf(inscripcion)
                         enviar_ficha_postulante(inscripcion, pdf_bytes)
                     except Exception as e:
-                        print("ERROR ENVÍO CORREO:", e)
+                        logger.error(
+                            f"Error enviando ficha de inscripción {inscripcion.id}: {str(e)}"
+                        )
 
                     messages.success(
                         request,
