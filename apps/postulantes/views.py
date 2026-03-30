@@ -29,21 +29,30 @@ def registrar_inscripcion(request):
     ).first()
 
     if not convocatoria_automatica:
-        messages.error(request, "No existe una convocatoria activa para el año 2026.")
+        messages.error(
+            request,
+            "No existe una convocatoria activa para el año 2026."
+        )
         return redirect("core:inicio")
 
     if not modalidad_automatica:
-        messages.error(request, "No existe una modalidad activa llamada Examen Virtual.")
+        messages.error(
+            request,
+            "No existe una modalidad activa llamada Examen Virtual."
+        )
         return redirect("core:inicio")
 
-    tipos_documento = TipoDocumento.objects.filter(activo=True).order_by("nombre")
-    faltantes = []  # ✅ SIEMPRE inicializada
+    tipos_documento = TipoDocumento.objects.filter(
+        activo=True
+    ).order_by("nombre")
+
+    faltantes = []
 
     if request.method == "POST":
         form_postulante = FormularioPostulante(request.POST)
         form_inscripcion = FormularioInscripcion(request.POST)
 
-        # Validación de documentos obligatorios
+        # ✅ Validación documentos obligatorios
         for tipo in tipos_documento.filter(obligatorio=True):
             archivo = request.FILES.get(f"{tipo.codigo}-archivo")
             if not archivo:
@@ -54,11 +63,14 @@ def registrar_inscripcion(request):
             if faltantes:
                 messages.error(
                     request,
-                    "Faltan documentos obligatorios: " + ", ".join(faltantes)
+                    "Faltan documentos obligatorios: "
+                    + ", ".join(faltantes)
                 )
             else:
                 try:
-                    # ✅ TRANSACCIÓN BD
+                    # ===============================
+                    # ✅ GUARDADO BD (TRANSACTION)
+                    # ===============================
                     with transaction.atomic():
                         postulante = form_postulante.save()
 
@@ -71,7 +83,9 @@ def registrar_inscripcion(request):
 
                         completar_codigos_inscripcion(inscripcion)
 
-                        # ✅ GOOGLE DRIVE (después de BD segura)
+                        # ===============================
+                        # ✅ GOOGLE DRIVE
+                        # ===============================
                         drive = ServicioGoogleDrive()
                         carpeta_postulante = drive.crear_estructura_postulante(
                             anio=convocatoria_automatica.anio,
@@ -83,7 +97,9 @@ def registrar_inscripcion(request):
                         )
 
                         for tipo in tipos_documento:
-                            archivo = request.FILES.get(f"{tipo.codigo}-archivo")
+                            archivo = request.FILES.get(
+                                f"{tipo.codigo}-archivo"
+                            )
                             if archivo:
                                 nombre_destino = construir_nombre_documento(
                                     tipo.codigo,
@@ -103,42 +119,67 @@ def registrar_inscripcion(request):
                                     defaults={
                                         "nombre_original": archivo.name,
                                         "nombre_guardado": nombre_destino,
-                                        "mime_type": getattr(archivo, "content_type", ""),
+                                        "mime_type": getattr(
+                                            archivo, "content_type", ""
+                                        ),
                                         "tamano_bytes": archivo.size,
                                         "drive_file_id": archivo_drive.get("id", ""),
-                                        "drive_url": archivo_drive.get("webViewLink", ""),
+                                        "drive_url": archivo_drive.get(
+                                            "webViewLink", ""
+                                        ),
                                         "drive_folder_id": carpeta_postulante["id"],
                                         "valido": True,
                                     }
                                 )
 
-                    # ✅ CORREO (NO rompe el registro si falla)
+                    # ======================================
+                    # ✅ CORREO (NO BLOQUEANTE)
+                    # ======================================
+                    correo_enviado = True
+
                     try:
                         pdf_bytes = generar_ficha_postulante_pdf(inscripcion)
                         enviar_ficha_postulante(inscripcion, pdf_bytes)
                     except Exception as e:
+                        correo_enviado = False
                         logger.error(
-                            f"Error enviando ficha de inscripción {inscripcion.id}: {str(e)}"
+                            f"Error enviando ficha inscripción "
+                            f"{inscripcion.id}: {str(e)}"
                         )
 
-                    messages.success(
-                        request,
-                        "Su inscripción fue registrada correctamente. "
-                        "La ficha de postulante fue enviada a su correo electrónico."
+                    # ======================================
+                    # ✅ MENSAJE FINAL AL POSTULANTE
+                    # ======================================
+                    if correo_enviado:
+                        messages.success(
+                            request,
+                            "Su inscripción fue registrada correctamente. "
+                            "La ficha de postulante fue enviada a su correo electrónico."
+                        )
+                    else:
+                        messages.warning(
+                            request,
+                            "Su inscripción fue registrada correctamente. "
+                            "En este momento no se pudo enviar el correo, "
+                            "pero la institución podrá reenviar su ficha."
+                        )
+
+                    return redirect(
+                        "postulantes:confirmacion_inscripcion"
                     )
-                    return redirect("postulantes:confirmacion_inscripcion")
 
                 except IntegrityError as e:
-                    print("ERROR BD:", e)
+                    logger.warning(f"Error BD inscripción duplicada: {e}")
                     messages.error(
                         request,
                         "Ya existe una inscripción registrada con los datos ingresados."
                     )
                 except Exception as e:
-                    print("ERROR GENERAL:", e)
+                    logger.exception("Error general registrando inscripción")
                     messages.error(
                         request,
-                        "Ocurrió un error inesperado. Comuníquese con la institución."
+                        "Ocurrió un error inesperado. "
+                        "Comuníquese con la institución."
                     )
 
     else:
