@@ -13,3 +13,5 @@ venv/
 # Django
 staticfiles/
 media/
+
+.idea/
