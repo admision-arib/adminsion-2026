@@ -1,0 +1,94 @@
+{% extends "base_minimal.html" %}
+
+{% block title %}Postulantes{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold text-slate-800">Lista de postulantes</h1>
+        <p class="text-slate-600 mt-2">Consulta, revisa y genera fichas de los expedientes registrados.</p>
+    </div>
+
+    <div class="bg-white border rounded-2xl p-4 shadow-sm">
+        <form method="get" class="grid md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Buscar</label>
+                <input type="text" name="q" value="{{ q }}" class="w-full rounded-xl border px-4 py-3" placeholder="Nombre, DNI o N° inscripción">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Estado</label>
+                <select name="estado" class="w-full rounded-xl border px-4 py-3">
+                    <option value="">Todos</option>
+                    <option value="BORRADOR" {% if estado_actual == "BORRADOR" %}selected{% endif %}>Borrador</option>
+                    <option value="ENVIADA" {% if estado_actual == "ENVIADA" %}selected{% endif %}>Enviada</option>
+                    <option value="OBSERVADA" {% if estado_actual == "OBSERVADA" %}selected{% endif %}>Observada</option>
+                    <option value="VALIDADA" {% if estado_actual == "VALIDADA" %}selected{% endif %}>Validada</option>
+                    <option value="RECHAZADA" {% if estado_actual == "RECHAZADA" %}selected{% endif %}>Rechazada</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="rounded-xl bg-blue-600 px-5 py-3 text-white font-medium hover:bg-blue-700">
+                    Filtrar
+                </button>
+            </div>
+             <div>
+                 <a
+                href="{% url 'panel:exportar_postulantes_excel' %}"
+                class="inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3
+                text-white font-semibold shadow-sm hover:bg-green-700 transition"
+                >
+              ⬇️ Descargar Excel
+            </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white border rounded-2xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="text-left px-4 py-3">N° inscripción</th>
+                        <th class="text-left px-4 py-3">Postulante</th>
+                        <th class="text-left px-4 py-3">Documento</th>
+                        <th class="text-left px-4 py-3">Programa</th>
+                        <th class="text-left px-4 py-3">Estado</th>
+                        <th class="text-left px-4 py-3">Fecha</th>
+                        <th class="text-left px-4 py-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inscripcion in inscripciones %}
+                    <tr class="border-t">
+                        <td class="px-4 py-3">{{ inscripcion.numero_inscripcion }}</td>
+                        <td class="px-4 py-3">
+                            {{ inscripcion.postulante.apellido_paterno }} {{ inscripcion.postulante.apellido_materno }}, {{ inscripcion.postulante.nombres }}
+                        </td>
+                        <td class="px-4 py-3">{{ inscripcion.postulante.numero_documento }}</td>
+                        <td class="px-4 py-3">{{ inscripcion.primera_opcion_programa.nombre }}</td>
+                        <td class="px-4 py-3">{{ inscripcion.estado }}</td>
+                        <td class="px-4 py-3">{{ inscripcion.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex flex-wrap gap-2">
+                                <a href="{% url 'panel:detalle_postulante' inscripcion.id %}" class="rounded-lg border px-3 py-2 hover:bg-slate-50">
+                                    Ver detalle
+                                </a>
+                                <a href="{% url 'panel:generar_ficha_completa' inscripcion.id %}" target="_blank" class="rounded-lg border px-3 py-2 hover:bg-slate-50">
+                                    Generar ficha
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-4 py-6 text-center text-slate-500">
+                            No hay postulantes registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

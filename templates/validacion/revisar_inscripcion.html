@@ -1,0 +1,86 @@
+{% extends "base_minimal.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto p-6">
+
+  <!-- Encabezado -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-slate-800">
+      Revisión de inscripción
+    </h1>
+    <p class="text-slate-600 mt-1">
+      Código de inscripción:
+      <span class="font-mono font-semibold text-slate-700">
+        {{ inscripcion.numero_inscripcion }}
+      </span>
+    </p>
+  </div>
+
+  <!-- Formulario -->
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    {% for doc in documentos %}
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+
+        <!-- Cabecera del documento -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800">
+              {{ doc.tipo_documento.nombre }}
+            </h3>
+            {% if doc.drive_url %}
+              <a href="{{ doc.drive_url }}"
+                 target="_blank"
+                 class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm mt-1">
+                📄 Ver documento
+              </a>
+            {% endif %}
+          </div>
+
+          <!-- Checkbox -->
+          <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <input
+              type="checkbox"
+              name="valido_{{ doc.id }}"
+              {% if doc.valido %}checked{% endif %}
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            >
+            Documento válido
+          </label>
+        </div>
+
+        <!-- Observación -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            Observación (solo si el documento no es válido)
+          </label>
+          <textarea
+            name="observacion_{{ doc.id }}"
+            rows="3"
+            class="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+            placeholder="Ejemplo: Archivo ilegible, volver a subir en PDF."
+          >{{ doc.observacion }}</textarea>
+        </div>
+
+      </div>
+    {% endfor %}
+
+    <!-- Acciones -->
+    <div class="flex justify-end gap-3 pt-4">
+      <a href="{% url 'panel:dashboard' %}"
+         class="px-5 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100">
+        Cancelar
+      </a>
+
+      <button
+        type="submit"
+        class="px-6 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-sm"
+      >
+        Guardar revisión
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

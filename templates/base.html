@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Admisión{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+<style>
+  .nav-link {
+    position: relative;
+    padding-bottom: 4px;
+    color: #ffffff;
+    transition: color 0.2s;
+  }
+
+  .nav-link:hover {
+    color: #facc15; /* amarillo */
+  }
+
+  .nav-link.active {
+    color: #facc15;
+    font-weight: 600;
+  }
+
+  .nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #facc15;
+    border-radius: 2px;
+  }
+</style>
+
+<!-- NAVBAR GLOBAL -->
+  {% include "core/sections/navbar.html" %}
+
+
+    <main class="w-full">
+        {% if messages %}
+            <div class="space-y-3 mb-6">
+                {% for message in messages %}
+                    <div class="rounded-lg border bg-white px-4 py-3 shadow-sm">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

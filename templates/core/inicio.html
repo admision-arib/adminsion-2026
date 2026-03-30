@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- ================= NAVBAR ================= -->
+{% include "core/sections/navbar.html" %}
+
+
+
+
+<!-- ================= HERO ================= -->
+<!-- ================= HERO ================= -->
+<section
+  id="inicio"
+  class="relative w-full min-h-[520px] bg-[#1f3c88] overflow-hidden"
+>
+
+  <!-- IMAGEN DE FONDO DERECHA (CON TRANSPARENCIA) -->
+  <div
+    class="absolute inset-y-0 right-0 w-1/2 bg-no-repeat bg-cover bg-right opacity-80"
+    style="background-image: url('{% static 'img/arib.png' %}')"
+  ></div>
+
+  <!-- OVERLAY AZUL PARA INTEGRAR IMAGEN -->
+  <div class="absolute inset-0 bg-gradient-to-r from-[#1f3c88] via-[#1f3c88]/95 to-transparent"></div>
+
+  <!-- CONTENIDO -->
+  <div class="relative max-w-[1200px] mx-auto px-6 py-24 text-white">
+
+    <div class="max-w-xl">
+      <h1 class="text-5xl font-extrabold leading-tight">
+        ADMISIÓN 2026
+        <span class="block text-yellow-400">
+          CARRERAS TÉCNICAS
+        </span>
+      </h1>
+              <div class="mt-4 w-full h-px bg-slate-400/30"></div>
+
+      <p class="mt-4 text-sm font-semibold">
+        Contabilidad · Construcción Civil · Explotación Minera
+      </p>
+      <div class="mt-4 w-full h-px bg-slate-400/30"></div>
+
+      <!-- LÍNEA DECORATIVA -->
+
+        <br>
+      <p class="text-sm leading-relaxed">
+        Estudia una carrera con alta demanda laboral y certificación oficial.
+      </p>
+
+      <!-- BOTONES -->
+      <div class="mt-6 flex gap-4">
+
+  <a href="{% url 'postulantes:registrar_inscripcion' %}"
+     class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 font-semibold
+            px-6 py-3 rounded-md shadow">
+    Postula Ahora
+  </a>
+
+  <a href="#"
+     class="border border-white/70 hover:bg-white hover:text-[#1f3c88]
+            text-white font-semibold
+            px-6 py-3 rounded-md transition">
+    Descargar Prospecto
+  </a>
+
+</div>
+
+      <!-- INFO SECUNDARIA -->
+              <div class="mt-4 w-full h-px bg-slate-400/30"></div>
+
+      <div class="mt-8 flex gap-6 text-xs text-slate-200">
+        <div class="flex items-center gap-1">
+          📌 <span>Modalidad: Presencial</span>
+        </div>
+        <div class="flex items-center gap-1 text-yellow-400">
+          ⏱ <span>3 Años</span>
+        </div>
+        <div class="flex items-center gap-1">
+          🎓 <span>Vacantes Limitadas</span>
+        </div>
+      </div>
+
+      <!-- LÍNEA INFERIOR -->
+      <div class="mt-4 w-full h-px bg-slate-400/30"></div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ================= CARRERAS ================= -->
+<section class="bg-white py-8">
+  <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-6">
+
+    <!-- CONTABILIDAD -->
+    <article class="relative h-[110px] rounded-xl overflow-hidden shadow-lg bg-cover bg-center"
+             style="background-image: url('{% static 'img/carreras/contabilidad-bg.png' %}')">
+      <div class="absolute inset-0 bg-gradient-to-r from-[#0b2f63]/60 via-[#0b2f63]/40 to-transparent"></div>
+      <div class="relative h-full flex items-center px-5 gap-4 text-white">
+        <img src="{% static 'img/carreras/contabilidad-icon.png' %}" class="w-20 shrink-0">
+        <div>
+          <h3 class="font-semibold">Contabilidad</h3>
+          <div class="h-px bg-white/60 my-1"></div>
+          <p class="text-yellow-400 font-extrabold">30 Vacantes</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- CONSTRUCCIÓN CIVIL -->
+    <article class="relative h-[110px] rounded-xl overflow-hidden shadow-lg bg-cover bg-center"
+             style="background-image: url('{% static 'img/carreras/contabilidad-bg.png' %}')">
+      <div class="absolute inset-0 bg-gradient-to-r from-[#0b2f63]/60 via-[#0b2f63]/40 to-transparent"></div>
+      <div class="relative h-full flex items-center px-5 gap-4 text-white">
+        <img src="{% static 'img/carreras/construccion-icon.png' %}" class="w-20 shrink-0">
+        <div>
+          <h3 class="font-semibold">Construcción Civil</h3>
+          <div class="h-px bg-white/60 my-1"></div>
+          <p class="text-yellow-400 font-extrabold">30 Vacantes</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- MINERÍA -->
+    <article class="relative h-[110px] rounded-xl overflow-hidden shadow-lg bg-cover bg-center"
+             style="background-image: url('{% static 'img/carreras/mineria-bg.png' %}')">
+      <div class="absolute inset-0 bg-gradient-to-r from-[#0b2f63]/70 via-[#0b2f63]/50 to-transparent"></div>
+      <div class="relative h-full flex items-center px-5 gap-4 text-white">
+        <img src="{% static 'img/carreras/mineria-icon.png' %}" class="w-20 shrink-0">
+        <div>
+          <h3 class="font-semibold">Explotación Minera</h3>
+          <div class="h-px bg-white/60 my-1"></div>
+          <p class="text-yellow-400 font-extrabold">30 Vacantes</p>
+        </div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+
+<!-- ================= REQUISITOS ================= -->
+{% include "core/sections/requisitos_procesos.html" %}
+
+<!-- ================= COSTO-CRONOGRAMA ================= -->
+{% include "core/sections/costo_cronograma.html" %}
+
+{% include "core/sections/infomes_contactos.html" %}
+
+{% endblock %}

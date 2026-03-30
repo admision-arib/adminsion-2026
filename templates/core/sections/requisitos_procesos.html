@@ -1,0 +1,63 @@
+{% load static %}
+
+<section id="requisitos" class="bg-[#0b2f63] py-10">
+  <div class="mx-auto max-w-[1100px] px-6">
+
+    <!-- PANEL BLANCO -->
+    <div class="bg-white rounded-xl shadow-lg">
+
+      <!-- TITULOS -->
+      <div class="px-6 pt-4 pb-2 grid grid-cols-[1.2fr_2fr] text-sm font-semibold text-[#0b2f63]">
+        <div>Requisitos para Postular</div>
+        <div>Proceso de <span class="text-yellow-500">Admisión</span></div>
+      </div>
+
+      <!-- LINEA -->
+      <div class="h-px bg-gray-200"></div>
+
+      <!-- CONTENIDO -->
+      <div class="p-6 grid grid-cols-[1.2fr_2fr] gap-6 items-center">
+
+        <!-- REQUISITOS (HORIZONTAL) -->
+        <div class="grid grid-cols-4 gap-4 text-center text-xs text-[#0b2f63]">
+
+          <div class="border rounded-lg p-3">
+            <img src="{% static 'img/requisitos/dni.png' %}" class="mx-auto h-10 mb-2">
+            Copia de DNI
+          </div>
+
+          <div class="border rounded-lg p-3">
+            <img src="{% static 'img/requisitos/certificado.png' %}" class="mx-auto h-10 mb-2">
+            Certificado de<br>Estudios
+          </div>
+
+          <div class="border rounded-lg p-3">
+            <img src="{% static 'img/requisitos/foto.png' %}" class="mx-auto h-10 mb-2">
+            Partida de <br>Nacimiento
+          </div>
+
+          <div class="border rounded-lg p-3">
+            <img src="{% static 'img/requisitos/boleta.png' %}" class="mx-auto h-10 mb-2">
+            Recibo de <br>Pago de Admisión <br> S/.60.00
+          </div>
+
+        </div>
+
+        <!-- PROCESO -->
+        <div class="border rounded-lg p-5 text-sm text-[#0b2f63] space-y-2">
+          <div>1. Pago de inscripción y registrarse</div>
+          <hr>
+          <div>2. Presenta tus documentos</div>
+          <hr>
+          <div>3. Rinde el examen de admisión</div>
+          <hr>
+          <div>4. Revisa tus resultados</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+

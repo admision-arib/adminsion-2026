@@ -1,0 +1,71 @@
+{% extends "base_minimal.html" %}
+
+{% block title %}Detalle del postulante{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-800">Detalle del postulante</h1>
+            <p class="text-slate-600 mt-2">{{ inscripcion.numero_inscripcion }} · {{ postulante.apellido_paterno }} {{ postulante.apellido_materno }}, {{ postulante.nombres }}</p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'panel:generar_ficha_completa' inscripcion.id %}" target="_blank" class="rounded-xl bg-blue-600 px-5 py-3 text-white font-medium hover:bg-blue-700">
+                Generar ficha
+            </a>
+            <a href="{% url 'panel:reenviar_ficha' inscripcion.id %}" class="rounded-xl border px-5 py-3 font-medium hover:bg-slate-50">
+                Reenviar ficha
+            </a>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-white border rounded-2xl p-6 shadow-sm">
+            <h2 class="text-xl font-bold mb-4">Datos del postulante</h2>
+            <div class="space-y-3 text-sm">
+                <p><span class="font-semibold">Documento:</span> {{ postulante.tipo_documento }} - {{ postulante.numero_documento }}</p>
+                <p><span class="font-semibold">Correo:</span> {{ postulante.correo_electronico }}</p>
+                <p><span class="font-semibold">Celular:</span> {{ postulante.celular }}</p>
+                <p><span class="font-semibold">Idioma materno:</span> {{ postulante.get_idioma_materno_display }}</p>
+                <p><span class="font-semibold">Fecha de nacimiento:</span> {{ postulante.fecha_nacimiento|date:"d/m/Y" }}</p>
+                <p><span class="font-semibold">Lugar de nacimiento:</span> {{ postulante.lugar_nacimiento }}, {{ postulante.distrito_nacimiento }}, {{ postulante.provincia_nacimiento }}, {{ postulante.departamento_nacimiento }}, {{ postulante.pais_nacimiento }}</p>
+                <p><span class="font-semibold">Institución de procedencia:</span> {{ postulante.institucion_procedencia }}</p>
+                <p><span class="font-semibold">Año de egreso:</span> {{ postulante.anio_egreso }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white border rounded-2xl p-6 shadow-sm">
+            <h2 class="text-xl font-bold mb-4">Datos de inscripción</h2>
+            <div class="space-y-3 text-sm">
+                <p><span class="font-semibold">Convocatoria:</span> {{ inscripcion.convocatoria.nombre }} {{ inscripcion.convocatoria.anio }}</p>
+                <p><span class="font-semibold">Modalidad:</span> {{ inscripcion.modalidad.nombre }}</p>
+                <p><span class="font-semibold">Primera opción:</span> {{ inscripcion.primera_opcion_programa.nombre }}</p>
+                <p><span class="font-semibold">Segunda opción:</span> {% if inscripcion.segunda_opcion_programa %}{{ inscripcion.segunda_opcion_programa.nombre }}{% else %}No registró{% endif %}</p>
+                <p><span class="font-semibold">Voucher:</span> {{ inscripcion.codigo_voucher_pago }}</p>
+                <p><span class="font-semibold">Estado:</span> {{ inscripcion.estado }}</p>
+                <p><span class="font-semibold">Fecha de registro:</span> {{ inscripcion.fecha_creacion|date:"d/m/Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border rounded-2xl p-6 shadow-sm">
+        <h2 class="text-xl font-bold mb-4">Documentos adjuntos</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+            {% for documento in documentos %}
+            <div class="rounded-xl border p-4">
+                <p class="font-semibold text-slate-800">{{ documento.tipo_documento.nombre }}</p>
+                <p class="text-sm text-slate-500 mt-1">{{ documento.nombre_guardado }}</p>
+                {% if documento.drive_url %}
+                    <a href="{{ documento.drive_url }}" target="_blank" class="inline-block mt-3 text-blue-600 hover:underline">
+                        Ver documento
+                    </a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-slate-500">No hay documentos registrados.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

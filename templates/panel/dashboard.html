@@ -1,0 +1,148 @@
+{% extends "base_minimal.html" %}
+
+{% block title %}Dashboard institucional{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-6">
+
+  <!-- ================= HEADER ================= -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-slate-800">
+      Dashboard institucional
+    </h1>
+    <p class="text-slate-600 mt-1">
+      Panel de control para validadores y administradores.
+    </p>
+  </div>
+
+  <!-- ================= TARJETAS KPI ================= -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+    <!-- TOTAL -->
+    <a href="{% url 'panel:dashboard' %}"
+       class="rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition">
+      <p class="text-sm text-slate-500">Total postulantes</p>
+      <p class="text-3xl font-bold text-slate-800 mt-1">{{ total }}</p>
+    </a>
+
+<!-- REGISTRADOS ✅ -->
+  <a href="{% url 'panel:dashboard' %}?estado=REGISTRADO"
+     class="bg-white border rounded-xl p-4 hover:shadow transition">
+    <p class="text-sm text-slate-500">Registrados</p>
+    <p class="text-3xl font-bold text-blue-600 mt-1">
+      {{ registrado }}
+    </p>
+  </a>
+    <!-- OBSERVADOS -->
+    <a href="?estado=OBSERVADO"
+       class="rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition">
+      <p class="text-sm text-slate-500">Observados</p>
+      <p class="text-3xl font-bold text-orange-600 mt-1">{{ observado }}</p>
+    </a>
+
+    <!-- VALIDADOS -->
+    <a href="?estado=VALIDADO"
+       class="rounded-2xl border bg-white p-5 shadow-sm hover:shadow transition">
+      <p class="text-sm text-slate-500">Validados</p>
+      <p class="text-3xl font-bold text-green-600 mt-1">{{ validado }}</p>
+    </a>
+
+        <a
+                href="{% url 'panel:exportar_postulantes_excel' %}"
+                class="inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3
+                text-white font-semibold shadow-sm hover:bg-green-700 transition"
+                >
+              ⬇️ Descargar Excel
+            </a>
+  </div>
+     <div>
+
+            </div>
+
+  <!-- ================= LISTA INTEGRADA ================= -->
+  <div class="bg-white rounded-2xl border shadow-sm">
+
+    <!-- HEADER LISTA -->
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-lg font-semibold text-slate-800">
+        {% if estado_seleccionado %}
+          Postulantes {{ estado_seleccionado|lower }}
+        {% else %}
+          Todos los postulantes
+        {% endif %}
+      </h2>
+
+      {% if estado_seleccionado %}
+        <a href="{% url 'panel:dashboard' %}"
+           class="text-sm text-blue-600 hover:underline">
+          Quitar filtro
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- TABLA -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 border-b text-slate-600">
+          <tr>
+            <th class="px-5 py-3 text-left font-semibold">N° Inscripción</th>
+            <th class="px-5 py-3 text-left font-semibold">Postulante</th>
+            <th class="px-5 py-3 text-left font-semibold">Programa</th>
+            <th class="px-5 py-3 text-left font-semibold">Estado</th>
+            <th class="px-5 py-3 text-left font-semibold">Fecha</th>
+            <th class="px-5 py-3 text-right font-semibold">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y">
+          {% for ins in inscripciones %}
+          <tr class="hover:bg-slate-50 transition">
+            <td class="px-5 py-3 font-mono">
+              {{ ins.numero_inscripcion }}
+            </td>
+            <td class="px-5 py-3">
+              {{ ins.postulante.nombre_completo }}
+            </td>
+            <td class="px-5 py-3">
+              {{ ins.primera_opcion_programa.nombre }}
+            </td>
+            <td class="px-5 py-3">
+              {% if ins.estado == "REGISTRADO" %}
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                  Registrado
+                </span>
+              {% elif ins.estado == "OBSERVADO" %}
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+                  Observado
+                </span>
+              {% elif ins.estado == "VALIDADO" %}
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                  Validado
+                </span>
+              {% endif %}
+            </td>
+            <td class="px-5 py-3">
+              {{ ins.fecha_creacion|date:"d/m/Y H:i" }}
+            </td>
+            <td class="px-5 py-3 text-right space-x-2">
+              <a href="{% url 'validacion:revisar_inscripcion' ins.id %}"
+                 class="inline-block rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">
+                Revisar
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="px-6 py-6 text-center text-slate-500">
+              No hay registros para mostrar.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

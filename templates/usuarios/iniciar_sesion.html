@@ -1,0 +1,36 @@
+{% extends 'base_minimal.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block content %}
+
+
+<div class="max-w-xl mx-auto bg-white border rounded-2xl shadow-sm p-8 ">
+    <h1 class="text-2xl font-bold mb-6">Iniciar sesión</h1>
+
+    <form method="post" class="space-y-5">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="rounded-lg bg-red-50 border border-red-200 text-red-700 p-3">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Correo electrónico</label>
+            {{ form.email|add_class:"w-full rounded-lg border px-3 py-2" }}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">Contraseña</label>
+            {{ form.password|add_class:"w-full rounded-lg border px-3 py-2" }}
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl">
+            Ingresar
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+credenciales/
+*.json
+.env
+
+# Virtualenv
+venv/
+.venv/
+
+# Environment variables
+.env
+
+
+# Django
+staticfiles/
+media/

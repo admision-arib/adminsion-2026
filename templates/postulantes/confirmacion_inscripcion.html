@@ -1,0 +1,33 @@
+{% extends "base_minimal.html" %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-[70vh] px-4">
+
+  <div class="w-full max-w-xl rounded-2xl border border-green-200 bg-green-50 p-6 text-center shadow-sm">
+
+    <h4 class="mb-4 text-2xl font-semibold text-green-700">
+      ✅ Inscripción registrada correctamente
+    </h4>
+
+    <p class="mb-2 text-slate-700">
+      Su inscripción al proceso de admisión ha sido registrada con éxito.
+    </p>
+
+    <p class="mb-6 text-slate-700">
+      📧 La ficha de postulante fue enviada al correo electrónico registrado.
+      Revíselo y consérvelo para el proceso de admisión.
+    </p>
+
+    <a
+      href="{% url 'core:inicio' %}"
+      class="inline-block rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white
+             transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200"
+    >
+      Ir al inicio
+    </a>
+
+  </div>
+
+</div>
+{% endblock %}
+

@@ -1,0 +1,64 @@
+{% load static %}
+
+<nav class="w-full bg-gradient-to-r from-[#0b2f63] to-[#0f3d85] fixed top-0 z-50">
+  <div class="max-w-[1200px] mx-auto px-6 h-16 flex justify-between items-center text-white">
+
+    <!-- LOGO -->
+    <div class="flex items-center gap-3">
+      <img
+        src="{% static 'img/logo_arib.png' %}"
+        alt="IESTP ARIB"
+        class="h-12 cursor-pointer"
+        onclick="window.location.href='{% url 'core:inicio' %}'"
+      />
+    </div>
+
+    <!-- DERECHA -->
+
+<div class="flex items-center gap-4 text-sm">
+
+  {% if request.user.is_authenticated %}
+
+    <!-- Email -->
+    <div class="flex flex-col leading-tight text-right">
+      <span class="text-slate-200">
+        {{ request.user.email }}
+      </span>
+
+      <!-- Rol (sutil, elegante) -->
+      <span class="text-xs text-slate-300">
+        {% if request.user.rol == "ADMINISTRADOR" %}
+          Administrador
+        {% elif request.user.rol == "VALIDADOR" %}
+          Validador
+        {% elif request.user.rol == "CONSULTA" %}
+          Consulta
+        {% endif %}
+      </span>
+    </div>
+
+    {% if request.user.rol == "ADMINISTRADOR" or request.user.rol == "VALIDADOR" %}
+      <a href="{% url 'panel:dashboard' %}" class="hover:underline">
+        Panel
+      </a>
+    {% endif %}
+
+    <a href="{% url 'usuarios:cerrar_sesion' %}" class="hover:underline">
+      Salir
+    </a>
+
+  {% else %}
+    <a href="{% url 'usuarios:iniciar_sesion' %}" class="hover:underline">
+      Iniciar sesión
+    </a>
+  {% endif %}
+
+  <a href="{% url 'core:inicio' %}"
+     class="bg-yellow-400 text-blue-900 font-semibold px-4 py-1.5 rounded-full shadow hover:bg-yellow-300 transition">
+    Regresar al inicio
+  </a>
+</div>
+
+
+  </div>
+</nav>

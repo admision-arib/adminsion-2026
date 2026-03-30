@@ -1,0 +1,73 @@
+{% load static %}
+
+<section class="bg-[#f4f6f9] py-10">
+  <div class="mx-auto max-w-[1100px] px-6">
+
+    <div class="grid md:grid-cols-2 gap-6">
+
+      <!-- ================= COSTO Y MEDIOS DE PAGO ================= -->
+      <div class="rounded-xl shadow-lg overflow-hidden
+                  bg-gradient-to-r from-yellow-100 via-yellow-50 to-white p-6">
+        <h3 class="text-[#0b2f63] font-semibold text-sm mb-4">
+          Costo y Medios de Pago
+        </h3>
+
+        <div class="grid grid-cols-3 gap-6 text-center text-sm text-[#0b2f63]">
+
+          <div>
+            <img src="{% static 'img/pagos/banco.png' %}" class="mx-auto h-12 mb-2">
+            Depósito Bancario
+          </div>
+
+          <div>
+            <img src="{% static 'img/pagos/yape.png' %}" class="mx-auto h-12 mb-2">
+            Yape / Plin
+          </div>
+
+          <div>
+            <img src="{% static 'img/pagos/oficina.png' %}" class="mx-auto h-12 mb-2">
+            Pago en Oficina
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= CRONOGRAMA ================= -->
+      <div class="rounded-xl shadow-lg overflow-hidden
+                  bg-[#0b2f63] text-white p-6">
+        <h3 class="font-semibold text-sm mb-4">
+          Cronograma de Admisión
+        </h3>
+
+        <ul class="text-sm space-y-4">
+
+          <li class="flex justify-between border-b border-white/20 pb-2">
+            <div class="flex items-center gap-2">
+              <img src="{% static 'img/cronograma/inscripcion.png' %}" class="h-5">
+              Inscripciones
+            </div>
+            <strong>Hasta el 09 de Abril</strong>
+          </li>
+
+          <li class="flex justify-between border-b border-white/20 pb-2">
+            <div class="flex items-center gap-2">
+              <img src="{% static 'img/cronograma/examen.png' %}" class="h-5">
+              Examen de Admisión
+            </div>
+            <strong>10 de Abril</strong>
+          </li>
+
+          <li class="flex justify-between">
+            <div class="flex items-center gap-2">
+              <img src="{% static 'img/cronograma/resultado.png' %}" class="h-5">
+              Publicación de Resultados
+            </div>
+            <strong>10 de Abril</strong>
+          </li>
+
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>

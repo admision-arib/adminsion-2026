@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Admisión{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+  {% static 'css/tailwind.css' %}
+</head>
+
+<body class="bg-slate-50">
+
+  {% include "core/sections/navbar_minimal.html" %}
+
+  <main class="pt-20">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!-- ================= NAVBAR ================= -->
+{% extends "base_minimal.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Ficha de inscripción Admisión 2026{% endblock %}
+
+{% block content %}
+
+{% load static %}
+
+<div class="max-w-6xl mx-auto pb-10">
+    <!-- HERO -->
+    <div class="mb-8 rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-sky-600 text-white p-8 shadow-xl">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">
+                    Formulario de inscripción
+                </h1>
+                <p class="mt-2 text-blue-100 text-base md:text-lg max-w-3xl">
+                    Complete sus datos paso a paso. Los campos con
+                    <span class="font-bold text-white">*</span> son obligatorios.
+                </p>
+            </div>
+            <div class="rounded-2xl bg-white/10 px-4 py-3 text-sm text-blue-50 border border-white/20">
+                Admisión 2026 · Exámen Modalidad Virtual
+            </div>
+        </div>
+    </div>
+
+    <!-- AYUDA -->
+    <div class="mb-8 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 shadow-sm">
+        <div class="flex items-start gap-3">
+            <div class="mt-1 text-amber-600 text-xl">ℹ️</div>
+            <div>
+                <h2 class="font-bold text-amber-900">Antes de continuar</h2>
+                <p class="text-sm text-amber-800 mt-1">
+                    Revise bien sus datos antes de registrar la inscripción. Los documentos deben estar legibles y en formato PDF, JPG, JPEG o PNG.
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 shadow-sm">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="space-y-8">
+        {% csrf_token %}
+
+        {% if form_postulante.non_field_errors or form_inscripcion.non_field_errors %}
+            <div class="rounded-2xl bg-red-50 border border-red-200 text-red-700 p-4 shadow-sm">
+                {{ form_postulante.non_field_errors }}
+                {{ form_inscripcion.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- DATOS PERSONALES -->
+        <section class="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-sm">
+            <div class="bg-blue-50 border-b border-blue-100 px-6 py-5">
+                <div class="flex items-start gap-3">
+                    <div class="text-2xl">🪪</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-blue-900">Datos personales</h2>
+                        <p class="text-sm text-blue-700 mt-1">
+                            Ingrese sus datos tal como aparecen en su documento de identidad.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 grid md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Apellido paterno <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.apellido_paterno|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Apellido materno <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.apellido_materno|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Nombres <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.nombres|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+
+                 <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Idioma materno <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.idioma_materno|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Tipo de documento <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.tipo_documento|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+
+
+<div>
+    <label class="block text-sm font-semibold text-slate-700 mb-2">
+        Número de documento <span class="text-red-500">*</span>
+    </label>
+
+    {{ form_postulante.numero_documento | add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+
+    {% if form_postulante.numero_documento.errors %}
+        <div class="text-red-600 text-sm mt-1">
+            {{ form_postulante.numero_documento.errors.0 }}
+        </div>
+    {% endif %}
+
+    <p class="mt-2 text-xs text-slate-500">
+        Si es DNI, debe tener 8 dígitos.
+    </p>
+</div>
+
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Sexo <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.sexo|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Fecha de nacimiento <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.fecha_nacimiento|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Correo electrónico <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.correo_electronico|add_class:"w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Celular <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.celular|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+
+
+
+                <div id="bloque-idioma-otro" class="hidden">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Especifique otro idioma
+                    </label>
+                    {{ form_postulante.idioma_materno_otro|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none" }}
+                </div>
+            </div>
+        </section>
+
+        <!-- LUGAR DE NACIMIENTO -->
+        <section class="overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm">
+            <div class="bg-emerald-50 border-b border-emerald-100 px-6 py-5">
+                <div class="flex items-start gap-3">
+                    <div class="text-2xl">📍</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-emerald-900">Lugar de nacimiento</h2>
+                        <p class="text-sm text-emerald-700 mt-1">
+                            Complete correctamente la información de su lugar de nacimiento.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 grid md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Lugar de nacimiento <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.lugar_nacimiento|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Distrito <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.distrito_nacimiento|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Provincia <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.provincia_nacimiento|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Departamento <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.departamento_nacimiento|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none" }}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        País <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.pais_nacimiento|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none" }}
+                </div>
+            </div>
+        </section>
+
+        <!-- TUTOR -->
+        <section class="overflow-hidden rounded-3xl border border-violet-100 bg-white shadow-sm">
+            <div class="bg-violet-50 border-b border-violet-100 px-6 py-5">
+                <div class="flex items-start gap-3">
+                    <div class="text-2xl">👨‍👩‍👧</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-violet-900">Tutor o apoderado</h2>
+                        <p class="text-sm text-violet-700 mt-1">
+                            Esta sección solo se completa si el postulante es menor de edad.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <div class="mb-5 rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 flex items-center gap-3">
+                    {{ form_postulante.es_menor_edad|add_class:"h-5 w-5 rounded border-slate-300 text-violet-600 focus:ring-violet-500" }}
+                    <label for="id_es_menor_edad" class="text-sm font-semibold text-violet-900">
+                        ¿El postulante es menor de edad?
+                    </label>
+                </div>
+
+                <div id="bloque-tutor" class="hidden">
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                Apellidos del tutor <span class="text-red-500">*</span>
+                            </label>
+                            {{ form_postulante.tutor_apellidos|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none" }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                Nombres del tutor <span class="text-red-500">*</span>
+                            </label>
+                            {{ form_postulante.tutor_nombres|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none" }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                Número de documento del tutor <span class="text-red-500">*</span>
+                            </label>
+                            {{ form_postulante.tutor_numero_documento|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none" }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                Tipo de parentesco <span class="text-red-500">*</span>
+                            </label>
+                            {{ form_postulante.tutor_tipo_parentesco|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INFORMACIÓN ACADÉMICA -->
+        <section class="overflow-hidden rounded-3xl border border-cyan-100 bg-white shadow-sm">
+            <div class="bg-cyan-50 border-b border-cyan-100 px-6 py-5">
+                <div class="flex items-start gap-3">
+                    <div class="text-2xl">🎓</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-cyan-900">Información académica</h2>
+                        <p class="text-sm text-cyan-700 mt-1">
+                            Complete los datos de la institución educativa de procedencia.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 grid md:grid-cols-2 gap-5">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Institución de procedencia <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.institucion_procedencia|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Año de egreso <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.anio_egreso|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Tipo institución <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.gestion_institucion|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none" }}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Dirección de institución <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.direccion_institucion|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Distrito <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.distrito_institucion|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Provincia <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.provincia_institucion|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Departamento <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.departamento_institucion|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        País <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_postulante.pais_institucion|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 outline-none" }}
+                </div>
+            </div>
+        </section>
+
+        <!-- DATOS DE POSTULACIÓN -->
+        <section class="overflow-hidden rounded-3xl border border-indigo-100 bg-white shadow-sm">
+            <div class="bg-indigo-50 border-b border-indigo-100 px-6 py-5">
+                <div class="flex items-start gap-3">
+                    <div class="text-2xl">📝</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-indigo-900">Datos de postulación</h2>
+                        <p class="text-sm text-indigo-700 mt-1">
+                            Revise la convocatoria y seleccione su primera y segunda opción.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 grid md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Convocatoria</label>
+                    <input
+                        type="text"
+                        value="{{ convocatoria_automatica.nombre }} {{ convocatoria_automatica.anio }}"
+                        class="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-slate-700 shadow-sm"
+                        readonly
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Modalidad</label>
+                    <input
+                        type="text"
+                        value="{{ modalidad_automatica.nombre }}"
+                        class="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-slate-700 shadow-sm"
+                        readonly
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Primera opción <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_inscripcion.primera_opcion_programa|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Segunda opción
+                    </label>
+                    {{ form_inscripcion.segunda_opcion_programa|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none" }}
+                    <p class="mt-2 text-xs text-slate-500">Este campo es opcional.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        ¿Cómo te enteraste del proceso?
+                    </label>
+                    {{ form_inscripcion.medio_informacion_admision|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none" }}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Código de voucher <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_inscripcion.codigo_voucher_pago|add_class:"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none" }}
+                    {% if form_inscripcion.codigo_voucher_pago.errors %}
+                        <div class="text-red-600 text-sm mt-1">
+                            {{ form_inscripcion.codigo_voucher_pago.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <p class="mt-2 text-xs text-slate-500">Ingrese el código que figura en su comprobante de pago.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DOCUMENTOS -->
+        <section class="overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm">
+            <div class="bg-emerald-50 border-b border-emerald-100 px-6 py-5">
+                <div class="flex items-start gap-3">
+                    <div class="text-2xl">📎</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-emerald-900">Documentos adjuntos</h2>
+                        <p class="text-sm text-emerald-700 mt-1">
+                            Adjunte documentos legibles. Formatos permitidos: PDF, JPG, JPEG o PNG. Máximo 5 MB.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 grid md:grid-cols-2 gap-5">
+                {% for tipo in tipos_documento %}
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <h3 class="font-semibold text-slate-800">{{ tipo.nombre }}</h3>
+                            {% if tipo.obligatorio %}
+                                <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
+                                    Obligatorio
+                                </span>
+                            {% else %}
+                                <span class="rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
+                                    Opcional
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <input
+                            type="file"
+                            name="{{ tipo.codigo }}-archivo"
+                            class="block w-full text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-blue-600 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                        >
+
+                        <p class="mt-3 text-xs text-slate-500">
+                            Solo se aceptan archivos PDF, JPG, JPEG o PNG.
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <div class="flex justify-end pt-2">
+            <button
+                type="submit"
+                class="rounded-2xl bg-blue-600 px-8 py-4 text-white font-bold shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200"
+            >
+                Registrar inscripción
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const checkboxMenor = document.getElementById("id_es_menor_edad");
+    const bloqueTutor = document.getElementById("bloque-tutor");
+
+    const camposTutor = [
+        document.getElementById("id_tutor_apellidos"),
+        document.getElementById("id_tutor_nombres"),
+        document.getElementById("id_tutor_numero_documento"),
+        document.getElementById("id_tutor_tipo_parentesco"),
+    ];
+
+    const selectIdioma = document.getElementById("id_idioma_materno");
+    const bloqueIdiomaOtro = document.getElementById("bloque-idioma-otro");
+    const campoIdiomaOtro = document.getElementById("id_idioma_materno_otro");
+
+    function actualizarBloqueTutor() {
+        if (checkboxMenor && checkboxMenor.checked) {
+            bloqueTutor.classList.remove("hidden");
+        } else if (bloqueTutor) {
+            bloqueTutor.classList.add("hidden");
+            camposTutor.forEach(campo => {
+                if (campo) campo.value = "";
+            });
+        }
+    }
+
+    function actualizarBloqueIdioma() {
+        if (selectIdioma && selectIdioma.value === "OTRO") {
+            bloqueIdiomaOtro.classList.remove("hidden");
+        } else if (bloqueIdiomaOtro) {
+            bloqueIdiomaOtro.classList.add("hidden");
+            if (campoIdiomaOtro) {
+                campoIdiomaOtro.value = "";
+            }
+        }
+    }
+
+    if (checkboxMenor && bloqueTutor) {
+        actualizarBloqueTutor();
+        checkboxMenor.addEventListener("change", actualizarBloqueTutor);
+    }
+
+    if (selectIdioma && bloqueIdiomaOtro) {
+        actualizarBloqueIdioma();
+        selectIdioma.addEventListener("change", actualizarBloqueIdioma);
+    }
+});
+</script>
+{% endblock %}

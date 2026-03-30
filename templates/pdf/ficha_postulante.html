@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm 15mm 18mm 15mm;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2937;
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        .header {
+            border-bottom: 2px solid #1d4ed8;
+            padding-bottom: 10px;
+            margin-bottom: 18px;
+        }
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-left {
+            width: 70%;
+            vertical-align: top;
+        }
+
+        .header-right {
+            width: 30%;
+            text-align: right;
+            vertical-align: top;
+        }
+
+        .titulo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1d4ed8;
+            margin: 0;
+        }
+
+        .subtitulo {
+            font-size: 12px;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        .codigo-box {
+            display: inline-block;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e3a8a;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .section {
+            margin-top: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .section-title {
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .section-body {
+            padding: 10px 12px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+
+        .label {
+            width: 32%;
+            font-weight: bold;
+            color: #334155;
+            background: #fafafa;
+        }
+
+        .value {
+            width: 68%;
+        }
+
+        .grid-2 {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .grid-2 td {
+            width: 50%;
+            vertical-align: top;
+            padding: 0 6px 0 0;
+        }
+
+        .foto-box {
+            width: 110px;
+            height: 130px;
+            border: 1px dashed #94a3b8;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 10px;
+            color: #64748b;
+            padding-top: 48px;
+            box-sizing: border-box;
+            background: #f8fafc;
+        }
+
+        .qr-box img {
+            width: 95px;
+            height: 95px;
+        }
+
+        .declaracion {
+            font-size: 10px;
+            text-align: justify;
+            color: #334155;
+        }
+
+        .firma-box {
+            margin-top: 28px;
+            text-align: center;
+        }
+
+        .linea-firma {
+            margin: 0 auto;
+            width: 220px;
+            border-top: 1px solid #334155;
+            padding-top: 5px;
+            font-size: 10px;
+        }
+
+        .footer-note {
+            margin-top: 12px;
+            font-size: 9px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <table class="header-table">
+            <tr>
+                <td class="header-left">
+                    <p class="titulo">Ficha de Postulante</p>
+                    <div class="subtitulo">Proceso de Admisión {{ inscripcion.convocatoria.anio }}</div>
+                    <div class="codigo-box">N.° Inscripción: {{ inscripcion.numero_inscripcion }}</div>
+                    <div class="codigo-box">Código postulante: {{ inscripcion.codigo_postulante }}</div>
+                </td>
+                <td class="header-right">
+                    <div class="badge">{{ inscripcion.estado }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="grid-2">
+        <tr>
+            <td>
+                <div class="section">
+                    <div class="section-title">Parte del postulante</div>
+                    <div class="section-body">
+                        <table class="info-table">
+                            <tr>
+                                <td class="label">Apellidos y nombres</td>
+                                <td class="value">{{ postulante.apellido_paterno }} {{ postulante.apellido_materno }}, {{ postulante.nombres }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Documento</td>
+                                <td class="value">{{ postulante.tipo_documento }} - {{ postulante.numero_documento }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Sexo</td>
+                                <td class="value">{{ postulante.get_sexo_display }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Correo</td>
+                                <td class="value">{{ postulante.correo_electronico }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Celular</td>
+                                <td class="value">{{ postulante.celular }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Idioma materno</td>
+                                <td class="value">
+                                    {{ postulante.get_idioma_materno_display }}
+                                    {% if postulante.idioma_materno == "OTRO" and postulante.idioma_materno_otro %}
+                                        - {{ postulante.idioma_materno_otro }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label">Fecha de nacimiento</td>
+                                <td class="value">{{ postulante.fecha_nacimiento|date:"d/m/Y" }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Lugar de nacimiento</td>
+                                <td class="value">
+                                    {{ postulante.lugar_nacimiento }}, {{ postulante.distrito_nacimiento }}, {{ postulante.provincia_nacimiento }}, {{ postulante.departamento_nacimiento }}, {{ postulante.pais_nacimiento }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label">Institución de procedencia</td>
+                                <td class="value">{{ postulante.institucion_procedencia }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Año de egreso</td>
+                                <td class="value">{{ postulante.anio_egreso }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Programa 1ra opción</td>
+                                <td class="value">{{ inscripcion.primera_opcion_programa.nombre }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Programa 2da opción</td>
+                                <td class="value">
+                                    {% if inscripcion.segunda_opcion_programa %}
+                                        {{ inscripcion.segunda_opcion_programa.nombre }}
+                                    {% else %}
+                                        No registró
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label">Modalidad</td>
+                                <td class="value">{{ inscripcion.modalidad.nombre }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Código voucher</td>
+                                <td class="value">{{ inscripcion.codigo_voucher_pago }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </td>
+
+            <td>
+                <div class="section">
+                    <div class="section-title">Validación visual</div>
+                    <div class="section-body" style="text-align:center;">
+                        <div class="foto-box">Imagen referencial institucional</div>
+                        <div style="height:14px;"></div>
+                        <div class="qr-box">
+                            <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR">
+                        </div>
+                        <div style="margin-top:8px; font-size:10px; color:#475569;">
+                            Código QR de verificación
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    {% if postulante.es_menor_edad %}
+    <div class="section">
+        <div class="section-title">Tutor o apoderado</div>
+        <div class="section-body">
+            <table class="info-table">
+                <tr>
+                    <td class="label">Apellidos y nombres</td>
+                    <td class="value">{{ postulante.tutor_apellidos }}, {{ postulante.tutor_nombres }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Documento</td>
+                    <td class="value">{{ postulante.tutor_numero_documento }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Parentesco</td>
+                    <td class="value">{{ postulante.tutor_tipo_parentesco }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <div class="section-title">Parte administrativa</div>
+        <div class="section-body">
+            <table class="info-table">
+                <tr>
+                    <td class="label">Estado de inscripción</td>
+                    <td class="value">{{ inscripcion.estado }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Fecha de registro</td>
+                    <td class="value">{{ inscripcion.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Fecha de validación</td>
+                    <td class="value">
+                        {% if inscripcion.fecha_validacion %}
+                            {{ inscripcion.fecha_validacion|date:"d/m/Y H:i" }}
+                        {% else %}
+                            Pendiente
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Observaciones</td>
+                    <td class="value">
+                        {% if inscripcion.observaciones_generales %}
+                            {{ inscripcion.observaciones_generales }}
+                        {% else %}
+                            Sin observaciones registradas.
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Declaración jurada</div>
+        <div class="section-body">
+            <p class="declaracion">
+                Declaro bajo juramento que la información consignada en la presente ficha de inscripción es verdadera,
+                que los documentos adjuntados corresponden a mi persona y que acepto las disposiciones del proceso de admisión.
+            </p>
+
+            <div class="firma-box">
+                <div class="linea-firma">
+                    Firma del postulante
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        Documento generado automáticamente por el Sistema de Admisión Institucional.
+    </div>
+</body>
+</html>
