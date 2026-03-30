@@ -9,14 +9,23 @@
       ✅ Inscripción registrada correctamente
     </h4>
 
-    <p class="mb-2 text-slate-700">
-      Su inscripción al proceso de admisión ha sido registrada con éxito.
-    </p>
 
-    <p class="mb-6 text-slate-700">
-      📧 La ficha de postulante fue enviada al correo electrónico registrado.
-      Revíselo y consérvelo para el proceso de admisión.
-    </p>
+<h2>Inscripción registrada correctamente</h2>
+
+
+{% if correo_enviado %}
+  <p class="text-green-700">
+    ✅ La ficha de postulante fue enviada al correo electrónico registrado.
+    Revíselo y consérvelo para el proceso de admisión.
+  </p>
+{% else %}
+  <p class="text-yellow-700">
+    ⚠️ La inscripción fue registrada correctamente.
+    El correo se enviará en breve o podrá solicitar su reenvío.
+  </p>
+{% endif %}
+
+
 
     <a
       href="{% url 'core:inicio' %}"
