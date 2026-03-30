@@ -17,7 +17,7 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
 
 # nuevo agregado con ngrok
 CSRF_TRUSTED_ORIGINS = [
-    "https://*.ngrok-free.app",
+    "https://admision.iestparib.edu.pe",
 ]
 
 
