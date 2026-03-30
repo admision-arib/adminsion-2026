@@ -115,10 +115,8 @@ class Inscripcion(models.Model):
     observaciones_generales = models.TextField(blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
-    correo_enviado = models.BooleanField(
-        default=False,
-        verbose_name="Correo enviado"
-    )
+    correo_enviado = models.BooleanField(default=False,verbose_name="Correo enviado")
+    ficha_pdf_path = models.CharField(max_length=255,blank=True,null=True)
 
     class Meta:
         verbose_name = "inscripción"

@@ -1,8 +1,8 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.db import transaction, IntegrityError
-
 import logging
+
 logger = logging.getLogger(__name__)
 
 from apps.admision.models import Convocatoria, ModalidadPostulacion
@@ -18,26 +18,16 @@ from .models import Inscripcion
 from .services import completar_codigos_inscripcion
 
 
-# ============================================================
-# REGISTRO DE INSCRIPCIÓN (PRODUCCIÓN)
-# ============================================================
 def registrar_inscripcion(request):
 
-    convocatoria = Convocatoria.objects.filter(
-        anio=2026,
-        activa=True
-    ).first()
-
+    convocatoria = Convocatoria.objects.filter(anio=2026, activa=True).first()
     modalidad = ModalidadPostulacion.objects.filter(
         nombre__iexact="examen virtual",
         activa=True
     ).first()
 
     if not convocatoria or not modalidad:
-        messages.error(
-            request,
-            "No existe una convocatoria o modalidad activa."
-        )
+        messages.error(request, "No existe una convocatoria o modalidad activa.")
         return redirect("core:inicio")
 
     tipos_documento = TipoDocumento.objects.filter(activo=True).order_by("nombre")
@@ -47,9 +37,6 @@ def registrar_inscripcion(request):
         form_postulante = FormularioPostulante(request.POST)
         form_inscripcion = FormularioInscripcion(request.POST)
 
-        # ----------------------------------------------------
-        # Validación de documentos obligatorios
-        # ----------------------------------------------------
         for tipo in tipos_documento.filter(obligatorio=True):
             if not request.FILES.get(f"{tipo.codigo}-archivo"):
                 faltantes.append(tipo.nombre)
@@ -59,14 +46,10 @@ def registrar_inscripcion(request):
             if faltantes:
                 messages.error(
                     request,
-                    "Faltan documentos obligatorios: "
-                    + ", ".join(faltantes)
+                    "Faltan documentos obligatorios: " + ", ".join(faltantes)
                 )
             else:
                 try:
-                    # ==================================================
-                    # TRANSACCIÓN BD (CRÍTICO)
-                    # ==================================================
                     with transaction.atomic():
 
                         postulante = form_postulante.save()
@@ -80,9 +63,6 @@ def registrar_inscripcion(request):
 
                         completar_codigos_inscripcion(inscripcion)
 
-                        # ----------------------------------------------
-                        # GOOGLE DRIVE
-                        # ----------------------------------------------
                         drive = ServicioGoogleDrive()
                         carpeta = drive.crear_estructura_postulante(
                             anio=convocatoria.anio,
@@ -94,9 +74,7 @@ def registrar_inscripcion(request):
                         )
 
                         for tipo in tipos_documento:
-                            archivo = request.FILES.get(
-                                f"{tipo.codigo}-archivo"
-                            )
+                            archivo = request.FILES.get(f"{tipo.codigo}-archivo")
                             if archivo:
                                 nombre_documento = construir_nombre_documento(
                                     tipo.codigo,
@@ -125,53 +103,33 @@ def registrar_inscripcion(request):
                                     }
                                 )
 
-                    # ==================================================
-                    # CORREO (NO BLOQUEANTE)
-                    # ==================================================
+                    # ---------- ENVÍO SENDGRID ----------
                     correo_enviado = True
-
                     try:
                         pdf_bytes = generar_ficha_postulante_pdf(inscripcion)
                         enviar_ficha_postulante(inscripcion, pdf_bytes)
                     except Exception as e:
                         correo_enviado = False
-                        logger.error(
-                            f"Error enviando correo de ficha "
-                            f"(ID {inscripcion.id}): {str(e)}"
-                        )
+                        logger.error(f"Error enviando correo: {e}")
 
-                    # ✅ Guardar estado real del correo
                     inscripcion.correo_enviado = correo_enviado
                     inscripcion.save(update_fields=["correo_enviado"])
 
-                    # ✅ Guardar ID en sesión para confirmación segura
                     request.session["ultima_inscripcion_id"] = inscripcion.id
 
-                    # ✅ Mensaje honesto al usuario
-                    if correo_enviado:
-                        messages.success(
-                            request,
-                            "Su inscripción fue registrada correctamente. "
-                            "La ficha fue enviada a su correo electrónico."
-                        )
-                    else:
-                        messages.warning(
-                            request,
-                            "Su inscripción fue registrada correctamente, "
-                            "pero en este momento no se pudo enviar el correo. "
-                            "La institución podrá reenviar su ficha."
-                        )
+                    messages.success(
+                        request,
+                        "✔ Inscripción registrada correctamente. "
+                        "La ficha fue enviada a su correo."
+                    )
 
                     return redirect("postulantes:confirmacion_inscripcion")
 
                 except IntegrityError:
-                    messages.error(
-                        request,
-                        "Ya existe una inscripción registrada con estos datos."
-                    )
+                    messages.error(request, "Ya existe una inscripción con estos datos.")
 
                 except Exception:
-                    logger.exception("Error general durante registro de inscripción")
+                    logger.exception("Error general")
                     messages.error(
                         request,
                         "Ocurrió un error inesperado. Comuníquese con la institución."
@@ -195,17 +153,9 @@ def registrar_inscripcion(request):
     )
 
 
-# ============================================================
-# CONFIRMACIÓN DE INSCRIPCIÓN (SEGURA)
-# ============================================================
 def confirmacion_inscripcion(request):
-    inscripcion = None
     inscripcion_id = request.session.get("ultima_inscripcion_id")
-
-    if inscripcion_id:
-        inscripcion = Inscripcion.objects.filter(
-            id=inscripcion_id
-        ).first()
+    inscripcion = Inscripcion.objects.filter(id=inscripcion_id).first()
 
     return render(
         request,

@@ -1,6 +1,6 @@
 from pathlib import Path
 from decouple import config
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parents[2]
 
@@ -32,6 +32,7 @@ DJANGO_APPS = [
 ]
 LOCAL_APPS = [
     'widget_tweaks',
+    "django_celery_results",
     'apps.core',
     'apps.usuarios',
     'apps.admision',

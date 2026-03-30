@@ -127,35 +127,19 @@ def generar_ficha_completa(request, inscripcion_id):
 
 
 @usuario_interno_requerido
-
-def reenviar_ficha(request, inscripcion_id):
-    inscripcion = get_object_or_404(Inscripcion, id=inscripcion_id)
-
-    if request.user.rol not in ["ADMINISTRADOR", "VALIDADOR"]:
-        raise PermissionDenied
+def reenviar_ficha(request, id):
+    inscripcion = get_object_or_404(Inscripcion, id=id)
 
     try:
-        pdf_bytes = generar_ficha_postulante_pdf(inscripcion)
-        enviar_ficha_postulante(inscripcion, pdf_bytes)
-
+        enviar_ficha_postulante(inscripcion, inscripcion.ficha_pdf_bytes)
         inscripcion.correo_enviado = True
         inscripcion.save(update_fields=["correo_enviado"])
-
-        messages.success(
-            request,
-            "La ficha fue reenviada correctamente."
-        )
-
-    except Exception as e:
-        logger.error(
-            f"Error reenviando ficha {inscripcion.id}: {str(e)}"
-        )
-        messages.error(
-            request,
-            "No se pudo reenviar la ficha en este momento."
-        )
+        messages.success(request, "La ficha fue reenviada correctamente.")
+    except Exception:
+        messages.error(request, "No se pudo reenviar la ficha.")
 
     return redirect("panel:dashboard")
+
 
 
 
