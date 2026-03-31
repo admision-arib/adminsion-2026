@@ -32,7 +32,6 @@ DJANGO_APPS = [
 ]
 LOCAL_APPS = [
     'widget_tweaks',
-    "django_celery_results",
     'apps.core',
     'apps.usuarios',
     'apps.admision',
