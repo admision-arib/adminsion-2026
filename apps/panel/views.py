@@ -127,18 +127,53 @@ def generar_ficha_completa(request, inscripcion_id):
 
 
 @usuario_interno_requerido
+
 def reenviar_ficha(request, id):
     inscripcion = get_object_or_404(Inscripcion, id=id)
 
+    # ✅ 1. Validar que exista la ficha
+    if not inscripcion.ficha_pdf_path:
+        messages.error(
+            request,
+            "No existe una ficha PDF generada para este postulante."
+        )
+        return redirect("panel:dashboard")
+
+    # ✅ 2. Validar que el archivo exista en disco
+    if not os.path.exists(inscripcion.ficha_pdf_path):
+        messages.error(
+            request,
+            "El archivo de la ficha no se encontró en el servidor."
+        )
+        return redirect("panel:dashboard")
+
     try:
-        enviar_ficha_postulante(inscripcion, inscripcion.ficha_pdf_bytes)
+        # ✅ 3. Leer el PDF desde disco (NO bytes en memoria vieja)
+        with open(inscripcion.ficha_pdf_path, "rb") as f:
+            pdf_bytes = f.read()
+
+        # ✅ 4. Envío con SendGrid (HTTP)
+        enviar_ficha_postulante(inscripcion, pdf_bytes)
+
         inscripcion.correo_enviado = True
         inscripcion.save(update_fields=["correo_enviado"])
-        messages.success(request, "La ficha fue reenviada correctamente.")
-    except Exception:
-        messages.error(request, "No se pudo reenviar la ficha.")
+
+        messages.success(
+            request,
+            "La ficha fue reenviada correctamente al correo del postulante."
+        )
+
+    except Exception as e:
+        logger.exception(
+            f"Error al reenviar ficha de inscripción {inscripcion.id}"
+        )
+        messages.error(
+            request,
+            "Ocurrió un error al reenviar la ficha. Intente nuevamente."
+        )
 
     return redirect("panel:dashboard")
+
 
 
 
