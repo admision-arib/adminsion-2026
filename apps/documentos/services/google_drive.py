@@ -12,15 +12,13 @@ class ServicioGoogleDrive:
     SCOPES = ["https://www.googleapis.com/auth/drive"]
 
     def __init__(self):
-        if not settings.GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE:
-            raise ValueError("No se configuró GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE")
-        if not settings.GOOGLE_DRIVE_ROOT_FOLDER_ID:
-            raise ValueError("No se configuró GOOGLE_DRIVE_ROOT_FOLDER_ID")
-
-        credenciales = service_account.Credentials.from_service_account_file(
-            settings.GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE,
-            scopes=self.SCOPES
-        )
+        try:
+            credenciales = service_account.Credentials.from_service_account_file(
+                settings.GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE,
+                scopes=self.SCOPES
+            )
+        except Exception as e:
+            raise RuntimeError(f"Error inicializando Google Drive: {e}")
 
         self.service = build("drive", "v3", credentials=credenciales)
         self.root_folder_id = settings.GOOGLE_DRIVE_ROOT_FOLDER_ID
