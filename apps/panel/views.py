@@ -129,7 +129,7 @@ def generar_ficha_completa(request, inscripcion_id):
 
 @usuario_interno_requerido
 def reenviar_ficha(request, inscripcion_id):
-    inscripcion = get_object_or_404(Inscripcion, id=id)
+    inscripcion = get_object_or_404(Inscripcion, id=inscripcion_id)
 
     # ✅ 1. Validar que exista la ficha en Drive
     if not inscripcion.ficha_drive_id:
