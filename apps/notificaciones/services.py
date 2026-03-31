@@ -1,8 +1,10 @@
 import base64
 import os
 import requests
+from decouple import config
 
-SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+
+SENDGRID_API_KEY = config("SENDGRID_API_KEY")
 SENDGRID_ENDPOINT = "https://api.sendgrid.com/v3/mail/send"
 
 
