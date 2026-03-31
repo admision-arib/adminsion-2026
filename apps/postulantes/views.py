@@ -22,6 +22,26 @@ from .services import completar_codigos_inscripcion
 # ============================================================
 # REGISTRO DE INSCRIPCIÓN (PRODUCCIÓN – SENDGRID)
 # ============================================================
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.db import transaction, IntegrityError
+from django.core.files.base import ContentFile
+import logging
+
+logger = logging.getLogger(__name__)
+
+from apps.admision.models import Convocatoria, ModalidadPostulacion
+from apps.documentos.models import TipoDocumento, DocumentoInscripcion
+from apps.documentos.services.google_drive import ServicioGoogleDrive
+from apps.documentos.services.utils import construir_nombre_documento
+from apps.pdf.services import generar_ficha_postulante_pdf
+from apps.notificaciones.services import enviar_ficha_postulante
+
+from .forms import FormularioPostulante, FormularioInscripcion
+from .models import Inscripcion
+from .services import completar_codigos_inscripcion
+
+
 def registrar_inscripcion(request):
 
     convocatoria = Convocatoria.objects.filter(anio=2026, activa=True).first()
@@ -58,9 +78,9 @@ def registrar_inscripcion(request):
                 )
             else:
                 try:
-                    # =====================================
+                    # ===============================
                     # TRANSACCIÓN BD
-                    # =====================================
+                    # ===============================
                     with transaction.atomic():
 
                         postulante = form_postulante.save()
@@ -75,9 +95,9 @@ def registrar_inscripcion(request):
 
                         completar_codigos_inscripcion(inscripcion)
 
-                        # -------------------------------------
-                        # GOOGLE DRIVE
-                        # -------------------------------------
+                        # ===============================
+                        # GOOGLE DRIVE – CARPETA
+                        # ===============================
                         drive = ServicioGoogleDrive()
                         carpeta = drive.crear_estructura_postulante(
                             anio=convocatoria.anio,
@@ -88,6 +108,9 @@ def registrar_inscripcion(request):
                             apellido_materno=postulante.apellido_materno,
                         )
 
+                        # ===============================
+                        # DOCUMENTOS DEL POSTULANTE
+                        # ===============================
                         for tipo in tipos_documento:
                             archivo = request.FILES.get(f"{tipo.codigo}-archivo")
                             if archivo:
@@ -118,51 +141,45 @@ def registrar_inscripcion(request):
                                     }
                                 )
 
-                    # =====================================
-                    # GENERAR PDF + ENVIAR SENDGRID
-                    # =====================================
-                    correo_enviado = True
+                        # ===============================
+                        # FICHA PDF – DRIVE (CLAVE)
+                        # ===============================
+                        pdf_bytes = generar_ficha_postulante_pdf(inscripcion)
 
-                    try:
-                        # ✅ 1. Generar PDF (ruta)
-                        pdf_path = generar_ficha_postulante_pdf(inscripcion)
-
-                        # ✅ 2. Guardar ruta en BD (CRÍTICO)
-                        inscripcion.ficha_pdf_path = pdf_path
-                        inscripcion.save(update_fields=["ficha_pdf_path"])
-
-                        # ✅ 3. Leer PDF desde disco
-                        with open(pdf_path, "rb") as f:
-                            pdf_bytes = f.read()
-
-                        # ✅ 4. Enviar correo por SendGrid (HTTP)
-                        enviar_ficha_postulante(inscripcion, pdf_bytes)
-
-                    except Exception as e:
-                        correo_enviado = False
-                        logger.exception(
-                            f"Error enviando ficha de inscripción {inscripcion.id}"
+                        archivo_ficha = drive.subir_archivo(
+                            archivo=ContentFile(pdf_bytes),
+                            nombre_destino=f"ficha_{inscripcion.numero_inscripcion}.pdf",
+                            parent_id=carpeta["id"]
                         )
 
-                    # ✅ 5. Guardar estado del correo
-                    inscripcion.correo_enviado = correo_enviado
+                        # ✅ Guardar SOLO referencia (NO filesystem local)
+                        inscripcion.ficha_drive_id = archivo_ficha.get("id")
+                        inscripcion.ficha_drive_url = archivo_ficha.get("webViewLink")
+                        inscripcion.save(
+                            update_fields=["ficha_drive_id", "ficha_drive_url"]
+                        )
+
+                    # ===============================
+                    # ENVÍO DE CORREO (SENDGRID)
+                    # ===============================
+                    try:
+                        enviar_ficha_postulante(inscripcion, pdf_bytes)
+                        inscripcion.correo_enviado = True
+                    except Exception:
+                        logger.exception(
+                            f"Error enviando correo de inscripción {inscripcion.id}"
+                        )
+                        inscripcion.correo_enviado = False
+
                     inscripcion.save(update_fields=["correo_enviado"])
 
-                    # ✅ Guardar ID para vista de confirmación
                     request.session["ultima_inscripcion_id"] = inscripcion.id
 
-                    if correo_enviado:
-                        messages.success(
-                            request,
-                            "✅ Inscripción registrada correctamente. "
-                            "La ficha fue enviada a su correo electrónico."
-                        )
-                    else:
-                        messages.warning(
-                            request,
-                            "✅ Inscripción registrada correctamente. "
-                            "⚠️ No se pudo enviar el correo en este momento."
-                        )
+                    messages.success(
+                        request,
+                        "✅ Inscripción registrada correctamente. "
+                        "📧 La ficha fue enviada a su correo electrónico."
+                    )
 
                     return redirect("postulantes:confirmacion_inscripcion")
 

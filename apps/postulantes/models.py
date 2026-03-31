@@ -116,7 +116,16 @@ class Inscripcion(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     correo_enviado = models.BooleanField(default=False,verbose_name="Correo enviado")
-    ficha_pdf_path = models.CharField(max_length=255,blank=True,null=True)
+    #ficha_pdf_path = models.CharField(max_length=255,blank=True,null=True)
+    ficha_drive_id = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True
+    )
+    ficha_drive_url = models.URLField(
+        null=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = "inscripción"

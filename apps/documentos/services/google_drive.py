@@ -2,6 +2,9 @@ import io
 import re
 import unicodedata
 
+from googleapiclient.http import MediaIoBaseDownload
+
+
 from django.conf import settings
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -106,3 +109,20 @@ class ServicioGoogleDrive:
         ).execute()
 
         return archivo_drive
+
+
+
+def descargar_archivo(self, file_id):
+    """
+    Descarga un archivo desde Google Drive y devuelve su contenido en bytes.
+    """
+    request = self.service.files().get_media(fileId=file_id)
+    fh = io.BytesIO()
+    downloader = MediaIoBaseDownload(fh, request)
+
+    done = False
+    while not done:
+        status, done = downloader.next_chunk()
+
+    fh.seek(0)
+    return fh.read()

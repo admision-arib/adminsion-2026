@@ -10,6 +10,7 @@ from apps.postulantes.models import Inscripcion
 from django.http import HttpResponse
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
+from apps.documentos.services.google_drive import ServicioGoogleDrive
 
 import logging
 
@@ -127,34 +128,26 @@ def generar_ficha_completa(request, inscripcion_id):
 
 
 @usuario_interno_requerido
-
 def reenviar_ficha(request, id):
     inscripcion = get_object_or_404(Inscripcion, id=id)
 
-    # ✅ 1. Validar que exista la ficha
-    if not inscripcion.ficha_pdf_path:
+    # ✅ 1. Validar que exista la ficha en Drive
+    if not inscripcion.ficha_drive_id:
         messages.error(
             request,
-            "No existe una ficha PDF generada para este postulante."
-        )
-        return redirect("panel:dashboard")
-
-    # ✅ 2. Validar que el archivo exista en disco
-    if not os.path.exists(inscripcion.ficha_pdf_path):
-        messages.error(
-            request,
-            "El archivo de la ficha no se encontró en el servidor."
+            "No existe una ficha de inscripción generada para este postulante."
         )
         return redirect("panel:dashboard")
 
     try:
-        # ✅ 3. Leer el PDF desde disco (NO bytes en memoria vieja)
-        with open(inscripcion.ficha_pdf_path, "rb") as f:
-            pdf_bytes = f.read()
+        # ✅ 2. Descargar PDF desde Google Drive (storage real)
+        drive = ServicioGoogleDrive()
+        pdf_bytes = drive.descargar_archivo(inscripcion.ficha_drive_id)
 
-        # ✅ 4. Envío con SendGrid (HTTP)
+        # ✅ 3. Enviar correo usando SendGrid (HTTP)
         enviar_ficha_postulante(inscripcion, pdf_bytes)
 
+        # ✅ 4. Marcar como reenviado
         inscripcion.correo_enviado = True
         inscripcion.save(update_fields=["correo_enviado"])
 
@@ -163,7 +156,7 @@ def reenviar_ficha(request, id):
             "La ficha fue reenviada correctamente al correo del postulante."
         )
 
-    except Exception as e:
+    except Exception:
         logger.exception(
             f"Error al reenviar ficha de inscripción {inscripcion.id}"
         )
@@ -173,6 +166,8 @@ def reenviar_ficha(request, id):
         )
 
     return redirect("panel:dashboard")
+
+
 
 
 
