@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.db import transaction, IntegrityError
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,9 @@ from .models import Inscripcion
 from .services import completar_codigos_inscripcion
 
 
+# ============================================================
+# REGISTRO DE INSCRIPCIÓN (PRODUCCIÓN – SENDGRID)
+# ============================================================
 def registrar_inscripcion(request):
 
     convocatoria = Convocatoria.objects.filter(anio=2026, activa=True).first()
@@ -27,7 +31,10 @@ def registrar_inscripcion(request):
     ).first()
 
     if not convocatoria or not modalidad:
-        messages.error(request, "No existe una convocatoria o modalidad activa.")
+        messages.error(
+            request,
+            "No existe una convocatoria o modalidad activa."
+        )
         return redirect("core:inicio")
 
     tipos_documento = TipoDocumento.objects.filter(activo=True).order_by("nombre")
@@ -37,6 +44,7 @@ def registrar_inscripcion(request):
         form_postulante = FormularioPostulante(request.POST)
         form_inscripcion = FormularioInscripcion(request.POST)
 
+        # ✅ Validar documentos obligatorios
         for tipo in tipos_documento.filter(obligatorio=True):
             if not request.FILES.get(f"{tipo.codigo}-archivo"):
                 faltantes.append(tipo.nombre)
@@ -50,6 +58,9 @@ def registrar_inscripcion(request):
                 )
             else:
                 try:
+                    # =====================================
+                    # TRANSACCIÓN BD
+                    # =====================================
                     with transaction.atomic():
 
                         postulante = form_postulante.save()
@@ -59,10 +70,14 @@ def registrar_inscripcion(request):
                         inscripcion.convocatoria = convocatoria
                         inscripcion.modalidad = modalidad
                         inscripcion.estado = Inscripcion.Estado.REGISTRADO
+                        inscripcion.correo_enviado = False
                         inscripcion.save()
 
                         completar_codigos_inscripcion(inscripcion)
 
+                        # -------------------------------------
+                        # GOOGLE DRIVE
+                        # -------------------------------------
                         drive = ServicioGoogleDrive()
                         carpeta = drive.crear_estructura_postulante(
                             anio=convocatoria.anio,
@@ -103,33 +118,62 @@ def registrar_inscripcion(request):
                                     }
                                 )
 
-                    # ---------- ENVÍO SENDGRID ----------
+                    # =====================================
+                    # GENERAR PDF + ENVIAR SENDGRID
+                    # =====================================
                     correo_enviado = True
+
                     try:
-                        pdf_bytes = generar_ficha_postulante_pdf(inscripcion)
+                        # ✅ 1. Generar PDF (ruta)
+                        pdf_path = generar_ficha_postulante_pdf(inscripcion)
+
+                        # ✅ 2. Guardar ruta en BD (CRÍTICO)
+                        inscripcion.ficha_pdf_path = pdf_path
+                        inscripcion.save(update_fields=["ficha_pdf_path"])
+
+                        # ✅ 3. Leer PDF desde disco
+                        with open(pdf_path, "rb") as f:
+                            pdf_bytes = f.read()
+
+                        # ✅ 4. Enviar correo por SendGrid (HTTP)
                         enviar_ficha_postulante(inscripcion, pdf_bytes)
+
                     except Exception as e:
                         correo_enviado = False
-                        logger.error(f"Error enviando correo: {e}")
+                        logger.exception(
+                            f"Error enviando ficha de inscripción {inscripcion.id}"
+                        )
 
+                    # ✅ 5. Guardar estado del correo
                     inscripcion.correo_enviado = correo_enviado
                     inscripcion.save(update_fields=["correo_enviado"])
 
+                    # ✅ Guardar ID para vista de confirmación
                     request.session["ultima_inscripcion_id"] = inscripcion.id
 
-                    messages.success(
-                        request,
-                        "✔ Inscripción registrada correctamente. "
-                        "La ficha fue enviada a su correo."
-                    )
+                    if correo_enviado:
+                        messages.success(
+                            request,
+                            "✅ Inscripción registrada correctamente. "
+                            "La ficha fue enviada a su correo electrónico."
+                        )
+                    else:
+                        messages.warning(
+                            request,
+                            "✅ Inscripción registrada correctamente. "
+                            "⚠️ No se pudo enviar el correo en este momento."
+                        )
 
                     return redirect("postulantes:confirmacion_inscripcion")
 
                 except IntegrityError:
-                    messages.error(request, "Ya existe una inscripción con estos datos.")
+                    messages.error(
+                        request,
+                        "Ya existe una inscripción registrada con estos datos."
+                    )
 
                 except Exception:
-                    logger.exception("Error general")
+                    logger.exception("Error general en registro de inscripción")
                     messages.error(
                         request,
                         "Ocurrió un error inesperado. Comuníquese con la institución."
@@ -153,6 +197,9 @@ def registrar_inscripcion(request):
     )
 
 
+# ============================================================
+# CONFIRMACIÓN DE INSCRIPCIÓN
+# ============================================================
 def confirmacion_inscripcion(request):
     inscripcion_id = request.session.get("ultima_inscripcion_id")
     inscripcion = Inscripcion.objects.filter(id=inscripcion_id).first()
