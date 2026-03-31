@@ -2,13 +2,10 @@ import io
 import re
 import unicodedata
 
-from googleapiclient.http import MediaIoBaseDownload
-
-
 from django.conf import settings
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
+from googleapiclient.http import MediaIoBaseUpload, MediaIoBaseDownload
 
 
 class ServicioGoogleDrive:
@@ -24,12 +21,15 @@ class ServicioGoogleDrive:
             settings.GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE,
             scopes=self.SCOPES
         )
+
         self.service = build("drive", "v3", credentials=credenciales)
         self.root_folder_id = settings.GOOGLE_DRIVE_ROOT_FOLDER_ID
 
     @staticmethod
     def normalizar_nombre(nombre: str) -> str:
-        nombre = unicodedata.normalize("NFKD", nombre).encode("ascii", "ignore").decode("ascii")
+        nombre = unicodedata.normalize("NFKD", nombre).encode(
+            "ascii", "ignore"
+        ).decode("ascii")
         nombre = re.sub(r"[^A-Za-z0-9._ -]", "", nombre).strip()
         nombre = re.sub(r"\s+", "-", nombre)
         return nombre[:150]
@@ -41,6 +41,7 @@ class ServicioGoogleDrive:
             f"and '{parent_id}' in parents "
             "and trashed=false"
         )
+
         response = self.service.files().list(
             q=query,
             spaces="drive",
@@ -57,11 +58,10 @@ class ServicioGoogleDrive:
             "mimeType": "application/vnd.google-apps.folder",
             "parents": [parent_id],
         }
-        carpeta = self.service.files().create(
+        return self.service.files().create(
             body=metadata,
             fields="id, name, webViewLink"
         ).execute()
-        return carpeta
 
     def obtener_o_crear_carpeta(self, nombre: str, parent_id: str):
         carpeta = self.buscar_carpeta(nombre, parent_id)
@@ -69,8 +69,18 @@ class ServicioGoogleDrive:
             return carpeta
         return self.crear_carpeta(nombre, parent_id)
 
-    def crear_estructura_postulante(self, anio: int, modalidad: str, numero_documento: str, nombres: str, apellido_paterno: str, apellido_materno: str):
-        carpeta_anio = self.obtener_o_crear_carpeta(str(anio), self.root_folder_id)
+    def crear_estructura_postulante(
+        self,
+        anio,
+        modalidad,
+        numero_documento,
+        nombres,
+        apellido_paterno,
+        apellido_materno
+    ):
+        carpeta_anio = self.obtener_o_crear_carpeta(
+            str(anio), self.root_folder_id
+        )
         carpeta_modalidad = self.obtener_o_crear_carpeta(
             self.normalizar_nombre(modalidad),
             carpeta_anio["id"]
@@ -80,12 +90,10 @@ class ServicioGoogleDrive:
             f"{numero_documento}-{apellido_paterno}-{apellido_materno}-{nombres}"
         )
 
-        carpeta_postulante = self.obtener_o_crear_carpeta(
+        return self.obtener_o_crear_carpeta(
             nombre_postulante,
             carpeta_modalidad["id"]
         )
-
-        return carpeta_postulante
 
     def subir_archivo(self, archivo, nombre_destino: str, parent_id: str):
         contenido = archivo.read()
@@ -102,27 +110,21 @@ class ServicioGoogleDrive:
             "parents": [parent_id],
         }
 
-        archivo_drive = self.service.files().create(
+        return self.service.files().create(
             body=metadata,
             media_body=media,
             fields="id, name, webViewLink, webContentLink, mimeType"
         ).execute()
 
-        return archivo_drive
+    # ✅ ESTA FUNCIÓN DEBE ESTAR AQUÍ
+    def descargar_archivo(self, file_id):
+        request = self.service.files().get_media(fileId=file_id)
+        fh = io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request)
 
+        done = False
+        while not done:
+            status, done = downloader.next_chunk()
 
-
-def descargar_archivo(self, file_id):
-    """
-    Descarga un archivo desde Google Drive y devuelve su contenido en bytes.
-    """
-    request = self.service.files().get_media(fileId=file_id)
-    fh = io.BytesIO()
-    downloader = MediaIoBaseDownload(fh, request)
-
-    done = False
-    while not done:
-        status, done = downloader.next_chunk()
-
-    fh.seek(0)
-    return fh.read()
+        fh.seek(0)
+        return fh.read()
