@@ -64,7 +64,7 @@ def registrar_inscripcion(request):
         form_postulante = FormularioPostulante(request.POST)
         form_inscripcion = FormularioInscripcion(request.POST)
 
-        # ✅ Validar documentos obligatorios
+        # Validar documentos obligatorios
         for tipo in tipos_documento.filter(obligatorio=True):
             if not request.FILES.get(f"{tipo.codigo}-archivo"):
                 faltantes.append(tipo.nombre)
